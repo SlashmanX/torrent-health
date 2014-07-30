@@ -1,6 +1,6 @@
 {
   "name"         : "torrent-health",
-  "version"      : "0.0.15",
+  "version"      : "0.0.3",
   "description"  : "Get health info about a torrent file or magnet link",
   "author"       : "SlashmanX",
   "main"         : "index.js",
@@ -11,10 +11,6 @@
   "dependencies" : {
     "q": "*",
     "read-torrent": "*",
-    "request": "*",
-    "async": "*",
-    "URIjs": "*",
-    "network-byte-order": "*",
-    "jspack": "*"
+    "node-tracker": "*"
   }
 }

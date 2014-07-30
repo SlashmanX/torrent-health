@@ -1,14 +1,11 @@
 var Q = require('q');
 var readtorrent = require('read-torrent');
 var async = require('async');
-var request = require('request');
-var dgram = require('dgram');
-var URI = require('URIjs');
-var nbo = require('network-byte-order');
-var pack = require('jspack').jspack;
+var Tracker = require('node-tracker');
 
-module.exports = function getTorrentHealth(torrent) {
+module.exports = function (torrent) {
 	var defer = Q.defer();
+	var results = [];
 	var health = {};
 
 	readtorrent(torrent, function(err, torrentInfo) {
@@ -17,36 +14,38 @@ module.exports = function getTorrentHealth(torrent) {
 		}
 
 		else {
-			health = torrentInfo;
-			health.peers = 0;
+			var tracker;
 
-			async.each(
+			async.eachSeries(
 				torrentInfo.announce,
 				function(tr, cb) {
-					var client = dgram.createSocket('udp4');
-					var uri = new URI(tr);
-					var msg = new Buffer(16);
-					msg = pack.PackTo('!q', msg, 0, '0x41727101980');
-					msg = pack.PackTo('!i', msg, 8, '0x0');
-					msg = pack.PackTo('!i', msg, 12, '0x4');
-					var host = uri.hostname();
-					var port = uri.port();
-					console.log(host + ':' + port);
-
-					client.send(msg, 0, msg.length, port, host, function(err, bytes) {
-						console.log(err);
-						console.log(bytes);
-					});
-
-					client.on('message', function(msg, rinfo) {
-						console.log(msg.toString('utf-8'));
-						console.log(rinfo);
-						client.close();
-
-						cb();
-					});
+					if(tr == 'udp://open.demonii.com:80') {
+						return cb(); // demonii is causing the module to time out and take ages
+					}
+					tracker = new Tracker(tr+'/announce');
+					setTimeout(function() {
+						tracker.scrape([torrentInfo.infoHash], function(err, msg) {
+							if(err) return cb();
+							if(msg[torrentInfo.infoHash]) {
+								results.push({
+									seeds: msg[torrentInfo.infoHash].seeders, 
+									peers: msg[torrentInfo.infoHash].leechers
+								});
+							}
+							tracker.close();
+							cb();
+						})
+					}, 1000)
 				},
 				function(err) {
+					var totalSeeds = 0;
+					var totalPeers = 0;
+					for(var r in results) {
+						totalSeeds += results[r].seeds;
+						totalPeers += results[r].peers;
+					}
+					health.seeds = Math.round(totalSeeds/results.length);
+					health.peers = Math.round(totalPeers/results.length);
 					defer.resolve(health);
 				}
 			)
