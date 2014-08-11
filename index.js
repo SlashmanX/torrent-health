@@ -19,11 +19,21 @@ module.exports = function (torrent) {
 			async.eachSeries(
 				torrentInfo.announce,
 				function(tr, cb) {
-					if(tr == 'udp://open.demonii.com:80') {
-						return cb(); // demonii is causing the module to time out and take ages
+					// Avoid trackers causing timeout
+					if (tr === 'udp://open.demonii.com:80') {
+						return cb();
 					}
 					tracker = new Tracker(tr+'/announce');
 					setTimeout(function() {
+						var resolved = null;
+						// Timeout and continue with other sources
+						setTimeout(function() {
+							if (!resolved) {
+								tracker.close();
+								cb();
+							}
+						}, 3000);
+
 						tracker.scrape([torrentInfo.infoHash], function(err, msg) {
 							if(err) return cb();
 							if(msg[torrentInfo.infoHash]) {
@@ -32,10 +42,11 @@ module.exports = function (torrent) {
 									peers: msg[torrentInfo.infoHash].leechers
 								});
 							}
+							resolved = true;
 							tracker.close();
 							cb();
-						})
-					}, 1000)
+						});
+					}, 1000);
 				},
 				function(err) {
 					var totalSeeds = 0;

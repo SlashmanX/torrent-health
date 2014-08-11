@@ -9,8 +9,9 @@
     "url"        : "http://github.com/SlashmanX/torrent-health.git"
   },
   "dependencies" : {
+    "async": "*",
     "q": "*",
     "read-torrent": "*",
-    "node-tracker": "*"
+    "node-tracker": "Cuevana/node-tracker"
   }
 }
