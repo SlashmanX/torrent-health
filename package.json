@@ -1,6 +1,6 @@
 {
   "name"         : "torrent-health",
-  "version"      : "0.0.3",
+  "version"      : "0.0.5",
   "description"  : "Get health info about a torrent file or magnet link",
   "author"       : "SlashmanX",
   "main"         : "index.js",
