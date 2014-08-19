@@ -12,10 +12,13 @@ module.exports = function (torrent) {
 		if (err) {
 			defer.reject(err);
 		} else {
-			var tracker;
-
 			async.eachLimit(torrentInfo.announce, 10, function(tr, cb) {
-				tracker = new Tracker(tr+'/announce');
+				// Complete tracker announce if not set
+				if (tr.indexOf('/announce') === -1) {
+					tr += '/announce';
+				}
+
+				var tracker = new Tracker(tr);
 				setTimeout(function() {
 					var resolved = null;
 					// Timeout and continue with other sources
@@ -43,11 +46,11 @@ module.exports = function (torrent) {
 				var totalSeeds = 0;
 				var totalPeers = 0;
 				for(var r in results) {
-					totalSeeds += results[r].seeds;
-					totalPeers += results[r].peers;
+					totalSeeds += parseInt(results[r].seeds);
+					totalPeers += parseInt(results[r].peers);
 				}
-				health.seeds = Math.round(totalSeeds/results.length);
-				health.peers = Math.round(totalPeers/results.length);
+				health.seeds = Math.round(totalSeeds/results.length) || 0;
+				health.peers = Math.round(totalPeers/results.length) || 0;
 				defer.resolve(health);
 			});
 		}
