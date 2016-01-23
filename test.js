@@ -1,6 +1,6 @@
 var health = require('./index.js');
 var Q = require('q');
-var magnet = 'magnet:?xt=urn:btih:5W5KGVINEZWUHQKTWWTFFGVNVQPDNKGF&dn=24.S09E10.720p.HDTV.X264-DIMENSION&tr=udp://tracker.openbittorrent.com:80&tr=udp://tracker.publicbt.com:80&tr=udp://tracker.istole.it:80&tr=udp://open.demonii.com:80&tr=udp://tracker.coppersurfer.tk:80';
+var magnet = 'magnet:?xt=urn:btih:b0bdbece174ec349403daad2b46e86f47dbe3c80&dn=Mount+%26+Blade%3A+With+Fire+and+Sword+Gold+Edition+%5BRUS%7C1C%5D+TRiViUM&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969';
 var Tracker = require('node-tracker');
 health(magnet)
 .then(function(health) {
