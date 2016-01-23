@@ -19,10 +19,10 @@ module.exports = function (torrent) {
 				}
 
 				var tracker = new Tracker(tr);
-				var timeout = setTimeout(function() {
+				setTimeout(function() {
 					var resolved = null;
 					// Timeout and continue with other sources
-					setTimeout(function() {
+					var timeout = setTimeout(function() {
 						if (!resolved) {
 							tracker.close();
 							return cb();
