@@ -19,18 +19,21 @@ module.exports = function (torrent) {
 				}
 
 				var tracker = new Tracker(tr);
-				setTimeout(function() {
+				var timeout = setTimeout(function() {
 					var resolved = null;
 					// Timeout and continue with other sources
 					setTimeout(function() {
 						if (!resolved) {
 							tracker.close();
-							cb();
+							return cb();
 						}
 					}, 3000);
 
 					tracker.scrape([torrentInfo.infoHash], function(err, msg) {
-						if(err) return cb();
+						clearTimeout(timeout);
+						if(err) {
+							return cb();
+						}
 						if(msg[torrentInfo.infoHash]) {
 							results.push({
 								seeds: msg[torrentInfo.infoHash].seeders, 
@@ -39,7 +42,7 @@ module.exports = function (torrent) {
 						}
 						resolved = true;
 						tracker.close();
-						cb();
+						return cb();
 					});
 				}, 1000);
 			}, function(err) {
